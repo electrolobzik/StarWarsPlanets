@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">StarWarsPlanetsViewer</string>
+    <string name="empty_content">The list is empty</string>
+    <string name="no_connection">No connection</string>
+    <string name="planet_list">Planet List</string>
+    <string name="retry">Retry</string>
+</resources>

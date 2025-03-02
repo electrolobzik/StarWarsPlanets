@@ -1,19 +1,19 @@
 package com.electrolobzik.starwarsplanetsviewer.presentation.planet_list.store
 
+import com.electrolobzik.starwarsplanetsviewer.core.coroutines.DispatcherProvider
 import com.electrolobzik.starwarsplanetsviewer.core.error_handling.DataResult
-import com.electrolobzik.starwarsplanetsviewer.domain.repository.PlanetRepository
 import com.electrolobzik.starwarsplanetsviewer.core.mvi.BaseStore
 import com.electrolobzik.starwarsplanetsviewer.core.mvi.OneTimeEvent
+import com.electrolobzik.starwarsplanetsviewer.domain.repository.PlanetRepository
 import com.electrolobzik.starwarsplanetsviewer.presentation.planet_list.PlanetListNavigationEvent
 import com.electrolobzik.starwarsplanetsviewer.presentation.planet_list.PlanetListViewState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 class PlanetListStore(
     private val planetRepository: PlanetRepository,
-    coroutineContext: CoroutineContext
-) : BaseStore<PlanetListIntent, PlanetListEffect, PlanetListViewState, OneTimeEvent, PlanetListNavigationEvent>(coroutineContext) {
+    dispatchers: DispatcherProvider,
+) : BaseStore<PlanetListIntent, PlanetListEffect, PlanetListViewState, OneTimeEvent, PlanetListNavigationEvent>(defaultDispatcher = dispatchers.default) {
 
     override val state = MutableStateFlow(PlanetListViewState())
 
@@ -45,6 +45,7 @@ class PlanetListStore(
                     emitEffect(PlanetListEffect.LoadingFinished)
                     emitOneTimeMessage(OneTimeEvent.NoConnection)
                 }
+
                 is DataResult.UnknownError -> {
                     emitEffect(PlanetListEffect.LoadingFinished)
                     emitOneTimeMessage(OneTimeEvent.UnknownError(result.unknownError))

@@ -5,6 +5,9 @@ import com.electrolobzik.starwarsplanetsviewer.core.utils.ConnectionChecker
 import com.electrolobzik.starwarsplanetsviewer.data.repository.PlanetRepositoryImpl
 import com.electrolobzik.starwarsplanetsviewer.data.source.remote.NetworkDataSource
 import com.electrolobzik.starwarsplanetsviewer.statics.SampleData
+import com.electrolobzik.starwarsplanetsviewer.utils.TestDispatcherProvider
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -13,6 +16,10 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 class PlanetRepositoryImplTest {
+
+    private val testScheduler = TestCoroutineScheduler()
+    private val testDispatcher = StandardTestDispatcher(testScheduler)
+    private val testDispatcherProvider = TestDispatcherProvider(testDispatcher)
 
     private lateinit var networkDataSource: NetworkDataSource
     private lateinit var connectionChecker: ConnectionChecker
@@ -24,12 +31,13 @@ class PlanetRepositoryImplTest {
         connectionChecker = mock()
         planetRepository = PlanetRepositoryImpl(
             networkDataSource = networkDataSource,
-            connectionChecker = connectionChecker
+            connectionChecker = connectionChecker,
+            dispatchers = testDispatcherProvider
         )
     }
 
     @Test
-    fun `getPlanets should return mapped Planet list`() = runTest {
+    fun `getPlanets should return mapped Planet list`() = runTest(testDispatcher) {
         // Given
         val pageNumber = 1
         val expectedPlanets = SampleData.planets

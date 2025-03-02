@@ -3,10 +3,13 @@ package com.electrolobzik.starwarsplanetsviewer.core.mvi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -19,11 +22,11 @@ abstract class BaseStore<Intent, Effect, State, OneTimeMessage, NavigationEvent>
 
     private val effectsFlow = MutableSharedFlow<Effect>()
 
-    private val navigationEvents = MutableSharedFlow<NavigationEvent>()
-    val navigationEventsFlow get() = navigationEvents.asSharedFlow()
+    private val navigationEvents = Channel<NavigationEvent>()
+    val navigationEventsFlow get() = navigationEvents.receiveAsFlow()
 
-    private val oneTimeMessages = MutableSharedFlow<OneTimeMessage>()
-    val oneTimeMessagesFlow get() = oneTimeMessages.asSharedFlow()
+    private val oneTimeMessages = Channel<OneTimeMessage>()
+    val oneTimeMessagesFlow get() = oneTimeMessages.receiveAsFlow()
 
     init {
         launch(Dispatchers.Default) {
@@ -44,13 +47,13 @@ abstract class BaseStore<Intent, Effect, State, OneTimeMessage, NavigationEvent>
 
     protected fun emitOneTimeMessage(message: OneTimeMessage) {
         launch(Dispatchers.Default) {
-            oneTimeMessages.emit(message)
+            oneTimeMessages.send(message)
         }
     }
 
     protected fun emitNavigationEvent(event: NavigationEvent) {
         launch {
-            navigationEvents.emit(event)
+            navigationEvents.send(event)
         }
     }
 

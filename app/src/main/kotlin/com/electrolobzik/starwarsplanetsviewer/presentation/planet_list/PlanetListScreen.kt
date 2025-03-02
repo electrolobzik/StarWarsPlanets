@@ -24,7 +24,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleStartEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.electrolobzik.starwarsplanetsviewer.R
 import com.electrolobzik.starwarsplanetsviewer.core.mvi.OneTimeEvent
 import com.electrolobzik.starwarsplanetsviewer.domain.model.Planet
@@ -42,9 +46,11 @@ fun PlanetListScreen(
     onUnknownError: (OneTimeEvent.UnknownError) -> Unit
 ) {
     val state by viewModel.stateFlow.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(Unit) {
         viewModel.navigationEventsFlow
+            .flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .collect { event ->
                 when (event) {
                     is PlanetListNavigationEvent.ShowPlanetDetails -> {
@@ -56,6 +62,7 @@ fun PlanetListScreen(
 
     LaunchedEffect(Unit) {
         viewModel.oneTimeMessagesFlow
+            .flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .collect { oneTimeMessage ->
                 when (oneTimeMessage) {
                     OneTimeEvent.NoConnection -> onNoConnection()

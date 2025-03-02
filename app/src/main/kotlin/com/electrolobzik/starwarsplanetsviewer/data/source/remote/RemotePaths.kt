@@ -4,5 +4,5 @@ object RemotePaths {
     const val BASE_URL = "https://swapi.dev/api/"
 
     const val PAGE_PARAM = "page"
-    const val PLANETS = "planets"
+    const val PLANETS_PATH = "planets"
 }
